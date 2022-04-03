@@ -1,4 +1,4 @@
-const CartModel = require("../src/models/cart");
+const CartModel = require("../models/cart");
 
 class CartMiddleware {
     static updateCartMiddleware({ _id, newItem, res }) {
@@ -47,10 +47,6 @@ class CartMiddleware {
                 },
 
                 $set: {
-                    totalAmount: newItem.totalAmount,
-                    totalQuantity: newItem.totalQuantity,
-                },
-                $inc: {
                     totalAmount: newItem.totalAmount,
                     totalQuantity: newItem.totalQuantity,
                 },

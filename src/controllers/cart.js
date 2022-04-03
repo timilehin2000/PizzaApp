@@ -5,7 +5,7 @@ const {
     checkForDuplicateItemsAndUpdate,
     updateDuplicateItems,
     removeItemFromCart,
-} = require("../../middleware/cartMiddleware");
+} = require("../middleware/cartMiddleware");
 const {
     addMenuToCartValidation,
     removeMenuFromCartValidation,
