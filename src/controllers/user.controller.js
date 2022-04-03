@@ -10,6 +10,7 @@ const {
 } = require("../helpers/validations/user.validation");
 
 const { generateToken } = require("../helpers/utils/utils");
+const res = require("express/lib/response");
 
 class UserController {
     static async registerUser(req, res) {
@@ -44,7 +45,8 @@ class UserController {
             address,
         });
 
-        let token = generateToken(newUser);
+        let token = generateToken(email);
+        newUser.token = token;
 
         try {
             await newUser.save();
@@ -52,7 +54,6 @@ class UserController {
             return res.status(200).json({
                 message: "Successfully registered!",
                 data: newUser,
-                token,
             });
         } catch (err) {
             return res.status(404).json({
@@ -73,36 +74,84 @@ class UserController {
             });
         }
 
-        //check if user exists
-        const existingUser = await UserModel.findOne({ email });
-        if (!existingUser) {
-            return res.status(400).json({
-                message: "Email or password is invalid",
-            });
-        }
+        let token = generateToken(email);
 
-        //check if the user's password is the same as the one in the db
-        const comparePassword = bcrypt.compareSync(
-            password,
-            existingUser.password
+        UserModel.findOneAndUpdate(
+            { email },
+            { token },
+            { useFindAndModify: true },
+            (err, resp) => {
+                //check if the user's status is active
+
+                // verify if password matches or not
+                if (bcrypt.compareSync(password, resp.password)) {
+                    return res.header("x-access-token", token).json({
+                        message: "Login succesful.",
+                        data: {
+                            // 'firstName': resp.firstName,
+                            // 'lastName': resp.lastName,
+                            email: resp.email,
+                            token: token,
+                            userType: resp.userType,
+                        },
+                    });
+                } else {
+                    res.status(404).json({
+                        message: "Incorrect Login details",
+                    });
+                }
+            }
         );
-        if (!comparePassword) {
+    }
+
+    static async logout(req, res) {
+        const user = req.user;
+
+        if (!user) {
             return res.status(400).json({
-                message: "Email or password is invalid",
+                message: "User not logged in or registered",
             });
         }
 
-        //generate token for the loggedin user
-        let token = generateToken(existingUser);
+        await UserModel.findOneAndUpdate({ email }, { token: null });
+        return res.status(200).json({
+            message: "Logged out!",
+        });
+    }
+
+    static async editDetails(req, res) {
+        const { email } = req.user;
+
+        const { firstName, lastName, address } = req.body;
+
+        let updateData = {};
+
+        if (firstName) {
+            updateData.firstName = firstName;
+        }
+        if (lastName) {
+            updateData.lastName = lastName;
+        }
+        if (address) {
+            updateData.address = address;
+        }
+
+        const updatedData = await UserModel.findOneAndUpdate(
+            { email },
+            { updateData }
+        );
+
+        updatedData.firstName = firstName;
+        updateData.lastName = lastName;
+        updateData.address = address;
 
         try {
-            return res.header("auth-token", token).json({
-                status: "Login succesfull",
-                token,
+            return res.status(200).json({
+                message: "Update successfully",
+                updateData,
             });
         } catch (err) {
-            console.log(err);
-            return res.status(404).json({
+            return res.status(400).json({
                 message: "Sorry, an error occured",
             });
         }
