@@ -10,18 +10,23 @@ class OrderValidation {
         );
         return schema.validate(data);
     };
+
+    static validateIntializePayment = (data) => {
+        const schema = Joi.object({
+            email: Joi.string().required(),
+            amount: Joi.number().required(),
+            orderId: Joi.string().required(),
+        });
+        return schema.validate(data);
+    };
+
+    static validateCompletePayment = (data) => {
+        const schema = Joi.object({
+            referenceId: Joi.string().required(),
+            orderId: Joi.string().required(),
+        });
+        return schema.validate(data);
+    };
 }
 
 module.exports = OrderValidation;
-
-// let Joi = require("joi");
-// let service = Joi.object().keys({
-//     serviceName: Joi.string().required(),
-// });
-
-// let services = Joi.array().items(service);
-
-// let test = Joi.validate(
-//     [{ serviceName: "service1" }, { serviceName: "service2" }],
-//     services
-// );

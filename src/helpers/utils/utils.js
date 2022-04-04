@@ -22,6 +22,7 @@ class Utils {
 
         let requestHeaders = {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         };
 
         const getResponse = async () => {
@@ -44,16 +45,17 @@ class Utils {
     }
 
     static async verifyTransaction(referenceId) {
-        let APIUrl = `https://api.paystack.co/transaction/verify/:reference`;
+        let APIUrl = `https://api.paystack.co/transaction/verify/${referenceId}`;
 
         let requestHeaders = {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         };
 
         const getResponse = async () => {
             const { isError, data, errorMessage } = await fetchApi(
-                { referenceId },
-                "POST",
+                {},
+                "GET",
                 APIUrl,
                 requestHeaders
             );
@@ -61,6 +63,7 @@ class Utils {
             if (isError) {
                 return { errorMessage, isError };
             } else {
+                console.log("is", data);
                 return { data: data.data.data };
             }
         };

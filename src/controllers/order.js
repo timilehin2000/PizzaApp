@@ -1,5 +1,13 @@
 const { response } = require("express");
-const { validateMakeOrderPayload } = require("../helpers/validations/order");
+const {
+    initializeTransaction,
+    verifyTransaction,
+} = require("../helpers/utils/utils");
+const {
+    validateMakeOrderPayload,
+    validateIntializePayment,
+    validateCompletePayment,
+} = require("../helpers/validations/order");
 const MenuModel = require("../models/menu");
 const OrderModel = require("../models/order");
 
@@ -11,11 +19,8 @@ class OrderController {
         const { error } = validateMakeOrderPayload(cartItems);
         if (error)
             return res.status(400).json({
-                message: {
-                    error: error.details[0].message,
-                },
+                message: error.details[0].message,
             });
-
         //declare an array to assign ids from user's request
         let idArray = [];
 
@@ -68,6 +73,113 @@ class OrderController {
             message: "Order has been created",
             data: newOrder,
         });
+    }
+
+    static async initializePayment(req, res) {
+        const { amount, email, orderId } = req.body;
+
+        const { error } = validateIntializePayment(req.body);
+        if (error)
+            return res.status(400).json({
+                message: error.details[0].message,
+            });
+
+        let amountCharged = amount * 100;
+
+        let params = {
+            amount: amountCharged,
+            email,
+        };
+
+        let { isError, data, errorMessage } = await initializeTransaction(
+            params
+        );
+
+        if (isError) {
+            return res.status(401).json({
+                messsage: errorMessage,
+            });
+        }
+
+        OrderModel.findOneAndUpdate(
+            {
+                _id: orderId,
+                totalOrderAmount: amount,
+            },
+            {
+                referenceId: data.reference,
+                paymentStatus: "Payment Initialized",
+            },
+            { new: true },
+            (err, resp) => {
+                if (err) {
+                    return res.status(404).json({
+                        message: "Sorry an error occcured",
+                    });
+                } else {
+                    if (resp === null) {
+                        return res.status(404).json({
+                            message: "Sorry an error occcured, try again",
+                        });
+                    }
+
+                    return res.status(200).json({
+                        message: "Payment Initialized",
+                        data: data,
+                    });
+                }
+            }
+        );
+    }
+
+    static async completePayment(req, res) {
+        const { referenceId, orderId } = req.body;
+
+        const { error } = validateCompletePayment(req.body);
+        if (error)
+            return res.status(400).json({
+                message: error.details[0].message,
+            });
+
+        let { isError, data, errorMessage } = await verifyTransaction(
+            referenceId
+        );
+
+        console.log(data);
+
+        if (isError) {
+            return res.status(401).json({
+                messsage: errorMessage,
+            });
+        }
+
+        OrderModel.findOneAndUpdate(
+            {
+                _id: orderId,
+            },
+            {
+                paymentStatus: "Payment Completed",
+            },
+            { new: true },
+            (err, resp) => {
+                if (err) {
+                    return res.status(404).json({
+                        message: "Sorry an error occcured",
+                    });
+                } else {
+                    if (resp === null) {
+                        return res.status(404).json({
+                            message: "Sorry an error occcured, try again",
+                        });
+                    }
+
+                    return res.status(200).json({
+                        message: "Payment Completed",
+                        data: resp,
+                    });
+                }
+            }
+        );
     }
 }
 

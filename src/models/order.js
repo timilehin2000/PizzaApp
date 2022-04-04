@@ -21,13 +21,16 @@ const orderSchema = new mongoose.Schema(
                 },
             },
         ],
+        referenceId: {
+            type: String,
+        },
         totalOrderAmount: {
             type: Number,
             default: 0,
         },
         paymentStatus: {
             type: String,
-            enum: ["Pending", "Success"],
+            enum: ["Pending", "Payment Initialized", "Payment Completed"],
             default: "Pending",
         },
     },

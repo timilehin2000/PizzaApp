@@ -77,6 +77,7 @@ class CartController {
 
     static fetchCart(req, res) {
         const { _id } = req.user;
+
         CartModel.find({ customer: _id })
             .populate({
                 path: "item",
