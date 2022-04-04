@@ -2,15 +2,16 @@ const bcrypt = require("bcryptjs");
 
 const jwt = require("jsonwebtoken");
 
-const UserModel = require("../models/user.model");
+const UserModel = require("../models/user");
 
 const {
     validateUserRegistration,
     validateUserLogin,
-} = require("../helpers/validations/user.validation");
+} = require("../helpers/validations/user");
 
 const { generateToken } = require("../helpers/utils/utils");
 const res = require("express/lib/response");
+const CartModel = require("../models/cart");
 
 class UserController {
     static async registerUser(req, res) {
@@ -76,6 +77,13 @@ class UserController {
 
         let token = generateToken(email);
 
+        const checkUser = await UserModel.findOne({ email });
+        if (!checkUser) {
+            return res.status(400).json({
+                message: "Incorrect login details",
+            });
+        }
+
         UserModel.findOneAndUpdate(
             { email },
             { token },
@@ -138,21 +146,31 @@ class UserController {
 
         const updatedData = await UserModel.findOneAndUpdate(
             { email },
-            { updateData }
+            {
+                firstName: updateData.firstName,
+                lastName: updateData.lastName,
+                address: updateData.address,
+            },
+            { new: true }
         );
-
-        updatedData.firstName = firstName;
-        updateData.lastName = lastName;
-        updateData.address = address;
 
         try {
             return res.status(200).json({
                 message: "Update successfully",
-                updateData,
+                updatedData,
             });
         } catch (err) {
             return res.status(400).json({
                 message: "Sorry, an error occured",
+            });
+        }
+    }
+
+    static async checkout(req, res) {
+        let findCart = await CartModel.findOne({ customer: _id });
+        if (!findCart && findCart.items.length === 0) {
+            return res.status(400).json({
+                message: "cart not found",
             });
         }
     }

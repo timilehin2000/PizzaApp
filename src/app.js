@@ -2,10 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv").config();
 const connectDb = require("./config/database");
-const UserRoutes = require("./routes/user.routes");
+const UserRoutes = require("./routes/user");
 const AdminRoutes = require("./routes/admin");
 const MenuRoutes = require("./routes/menu");
 const CartRoutes = require("./routes/cart");
+const OrderRoutes = require("./routes/order");
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use("/api/v1", UserRoutes);
 app.use("/api/v1", AdminRoutes);
 app.use("/api/v1", MenuRoutes);
 app.use("/api/v1", CartRoutes);
-
+app.use("/api/v1", OrderRoutes);
 //handle unwanted route
 app.use("/*", (req, res) => {
     // console.log(req, res);

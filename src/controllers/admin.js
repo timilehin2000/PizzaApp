@@ -1,11 +1,6 @@
-const {
-    validateMenuPayload,
-} = require("../helpers/validations/menu.validation");
-const {
-    validateCreateMenuPayload,
-} = require("../helpers/validations/menu.validation");
+const { validateCreateMenuPayload } = require("../helpers/validations/menu");
 const MenuModel = require("../models/menu");
-const UserModel = require("../models/user.model");
+const UserModel = require("../models/user");
 
 class AdminControler {
     static async deleteAUser(req, res) {
@@ -57,7 +52,7 @@ class AdminControler {
             const menu = await newMenu.save();
             return res.status(200).json({
                 message: "Successfully created menu",
-                data: newMenu,
+                data: menu,
             });
         } catch (err) {
             console.log(err);

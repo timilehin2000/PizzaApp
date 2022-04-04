@@ -5,30 +5,15 @@ const cartSchema = new mongoose.Schema(
         customer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "user",
-            // required: true,
+            required: true,
         },
-        totalAmount: {
+        item: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "menu",
+        },
+        quantity: {
             type: Number,
-            default: 0,
         },
-        totalQuantity: {
-            type: Number,
-            default: 0,
-        },
-        items: [
-            {
-                name: String,
-                quantity: Number,
-                price: Number,
-                shippingPrice: Number,
-                addedDate: Date,
-                menu: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "menu",
-                    required: true,
-                },
-            },
-        ],
     },
     {
         timestamps: true,

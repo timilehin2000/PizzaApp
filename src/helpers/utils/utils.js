@@ -1,5 +1,9 @@
 const jwt = require("jsonwebtoken");
 
+const axios = require("axios").default;
+
+const fetchApi = require("./fetchApi");
+
 class Utils {
     static generateToken(email) {
         return jwt.sign(

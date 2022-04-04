@@ -25,6 +25,14 @@ const userSchema = new mongoose.Schema(
         token: {
             type: String,
         },
+        cartTotalAmount: {
+            type: Number,
+            default: 0,
+        },
+        cartTotalQuantity: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,
