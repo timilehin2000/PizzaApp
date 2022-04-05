@@ -1,5 +1,6 @@
+const { attachment } = require("express/lib/response");
 const jwt = require("jsonwebtoken");
-
+const mailgun = require("mailgun-js");
 const axios = require("axios").default;
 
 const fetchApi = require("./fetchApi");
@@ -70,6 +71,30 @@ class Utils {
 
         const response = await getResponse();
         return response;
+    }
+
+    static sendMail(recipient, subject, message) {
+        const mg = mailgun({
+            apiKey: process.env.MAILGUN_API_KEY,
+            domain: process.env.DOMAIN_NAME,
+        });
+
+        new Promise((resolve, reject) => {
+            const data = {
+                from: "PizzaApp.org <joeltimmy7@gmail.com>",
+                to: recipient,
+                subject: subject,
+                text: message,
+                html: message.html,
+                inline: attachment,
+            };
+            mg.messages().send(data, (error, body) => {
+                if (error) {
+                    return reject(error);
+                }
+                resolve();
+            });
+        });
     }
 }
 

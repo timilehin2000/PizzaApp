@@ -2,6 +2,7 @@ const { response } = require("express");
 const {
     initializeTransaction,
     verifyTransaction,
+    sendMail,
 } = require("../helpers/utils/utils");
 const {
     validateMakeOrderPayload,
@@ -13,7 +14,7 @@ const OrderModel = require("../models/order");
 
 class OrderController {
     static async makeOrder(req, res) {
-        const { _id } = req.user;
+        const { _id, email } = req.user;
         const { cartItems } = req.body;
 
         const { error } = validateMakeOrderPayload(cartItems);
@@ -69,6 +70,12 @@ class OrderController {
         });
 
         await newOrder.save();
+
+        let subject = " Congratulations, Your order has been placed";
+        let message = `Hello Dear Customer, Thank you for shopping with PizzaApp!\n It will be packaged and shipped as soon as possible.\n Once the item(s) is out for delivery or available for pick - up you will receive a notification from us `;
+
+        await sendMail(email, subject, message);
+
         return res.status(200).json({
             message: "Order has been created",
             data: newOrder,
