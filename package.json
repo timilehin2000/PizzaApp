@@ -19,9 +19,7 @@
         "joi": "^17.6.0",
         "jsonwebtoken": "^8.5.1",
         "mailgun-js": "^0.22.0",
-        "mongoose": "^6.2.9"
-    },
-    "devDependencies": {
+        "mongoose": "^6.2.9",
         "nodemon": "^2.0.15"
     }
 }
