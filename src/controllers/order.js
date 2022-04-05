@@ -72,7 +72,9 @@ class OrderController {
         await newOrder.save();
 
         let subject = " Congratulations, Your order has been placed";
-        let message = `Hello Dear Customer, Thank you for shopping with PizzaApp!\n It will be packaged and shipped as soon as possible.\n Once the item(s) is out for delivery or available for pick - up you will receive a notification from us `;
+        let message = `Hello Dear Customer, Thank you for shopping with PizzaApp!\n 
+        It will be packaged and shipped as soon as possible.\n
+        Once the item(s) is out for delivery or available for pick - up you will receive a notification from us `;
 
         await sendMail(email, subject, message);
 
